@@ -20,9 +20,9 @@ const jwtMiddleware = require('../middlewares/jwtMiddleware');
  *       type: object
  *       properties:
  *         email:
- *           type: String
+ *           type: string
  *         password:
- *           type: String
+ *           type: string
  *       required:
  *         - email
  *         - password

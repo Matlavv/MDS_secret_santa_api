@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const groupController = require('../controllers/groupController');
+const invitationController = require('../controllers/invitationController');
 const jwtMiddleware = require('../middlewares/jwtMiddleware');
 
 router
@@ -19,34 +21,30 @@ router
     .patch(userController.patchUser)
     .get(userController.getUser)
 
-    router 
-    .route('/:user_id/groups/')
+router 
+    .route('/:user_id/group/')
     .all(jwtMiddleware.verifyToken)
-    .post(userController.createGroup)
+    .post(groupController.createGroup)
 
 router 
-    .route('/:user_id/groups/:group_id')
+    .route('/:user_id/group/:group_id')
     .all(jwtMiddleware.verifyToken)
-    .get(userController.getInfoGroup)
-    .delete(userController.deleteGroup)
-    .patch(userController.patchGroup)
-    .put(userController.putGroup)
+    .get(groupController.getInfoGroup)
+    .delete(groupController.deleteGroup)
 
 router  
+    .route('/:user_id/group/:group_id/invitation')
     .all(jwtMiddleware.verifyToken)
-    .route('/:user_id/groups/:group_id/invitation')
-    .post(userController.addInvitation)
+    .post(invitationController.addInvitation)
 
 router
+    .route('/:user_id/group/:group_id/invitation/accept')
     .all(jwtMiddleware.verifyToken)
-    .all(jwtMiddleware.verifyToken)
-    .route('/:user_id/groups/:group_id/invitation/accept')
-    .post(userController.acceptInvit)
+    .post(invitationController.acceptInvite)
 
 router
+    .route('/:user_id/group/:group_id/invitation/decline')
     .all(jwtMiddleware.verifyToken)
-    .all(jwtMiddleware.verifyToken)
-    .route('/:user_id/groups/:group_id/invitation/decline')
-    .post(userController.declineInvit)
+    .post(invitationController.declineInvite)
 
 module.exports = router;

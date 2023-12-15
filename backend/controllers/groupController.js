@@ -8,7 +8,6 @@ exports.getInfoGroup = async (req, res) => {
     try {
         const userId = req.params.user_id;
         const groupId = req.params.group_id;
-
         const user = await User.findById(userId);
 
         if (!user) {

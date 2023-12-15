@@ -211,7 +211,7 @@ router.post('/:user_id/group/', jwtMiddleware.verifyToken, groupController.creat
  *             example:
  *               message: 'Group informations :'
  */
-router.post('/:user_id/group/', jwtMiddleware.verifyToken, groupController.getInfoGroup);
+router.post('/:user_id/group/', jwtMiddleware.verifyToken, groupController.getGroup);
 /**
  * @swagger
  * /users/user_id/group/group_id:
@@ -254,7 +254,7 @@ router.post('/:user_id/group/', jwtMiddleware.verifyToken, groupController.delet
  *             example:
  *               message: 'Invitation created'
  */
-router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyToken, invitationController.addInvitation);
+router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyTokenInvitation, invitationController.addInvitation);
 
 /**
  * @swagger
@@ -276,7 +276,7 @@ router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyToken, i
  *             example:
  *               message: 'Invitation accepted'
  */
-router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyToken, invitationController.declineInvite);
+router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyTokenInvitation, invitationController.declineInvitation);
 /**
  * @swagger
  * /users/user_id/group/group_id/invitation/decline:
@@ -297,6 +297,6 @@ router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyToken, i
  *             example:
  *               message: 'Invitation refused'
  */
-router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyToken, invitationController.acceptInvite);
+router.post('/:user_id/group/:group_id/invitation', jwtMiddleware.verifyTokenInvitation, invitationController.acceptInvitation);
 
 module.exports = router;

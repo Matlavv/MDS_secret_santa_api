@@ -3,7 +3,7 @@ const Group = require('../models/groupModel');
 require('dotenv').config();
 
 // Get the group
-exports.getInfoGroup = async (req, res) => {
+exports.getGroup = async (req, res) => {
     try {
         const userId = req.params.user_id;
         const groupId = req.params.group_id;

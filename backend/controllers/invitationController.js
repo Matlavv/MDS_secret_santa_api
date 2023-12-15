@@ -26,7 +26,7 @@ exports.addInvitation = async (req, res) => {
         }
 
         // If user is admin he can send invite
-        const token = await jwt.sign({ groupId, userId }, process.env.JWT_KEY_INVIT, { expiresIn: '48h' });
+        const token = await jwt.sign({ groupId, userId }, process.env.JWT_KEY_INVITATION, { expiresIn: '48h' });
 
         res.status(200).json({ message: 'Invitation send', token });
     } catch (error) {

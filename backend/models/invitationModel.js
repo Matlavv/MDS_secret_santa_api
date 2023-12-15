@@ -12,7 +12,7 @@ let invitationSchema = new Schema({
         ref: 'User',
         required: true
     },
-    recipient: {
+    receiver: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true

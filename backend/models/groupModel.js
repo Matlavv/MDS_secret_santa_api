@@ -7,12 +7,12 @@ let groupSchema = new Schema({
         required: true
     },
     admin: {
-        type: Schema.Types.ObjectId,
+        type: String,
         ref: 'User',
         required: true
     },
     members: [{
-        type: Schema.Types.ObjectId,
+        type: String,
         ref: 'User'
     }],
     createdAt: {

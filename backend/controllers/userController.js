@@ -8,7 +8,7 @@ exports.userRegister = async (req, res) => {
     try {
         let newUser = new User(req.body);
         let user = await newUser.save();
-        res.status(201).json({ message: `User created : ${user.email}, id : ${user.id}` });        
+        res.status(201).json({ message: `User created` });        
     } 
     catch (error) {
         console.log(error);

@@ -46,7 +46,7 @@ exports.createGroup = async (req, res) => {
             const group = await newGroup.save();
             group.role = 'admin';
             await group.save();
-            res.status(201).json({ message: `Group created id : ${group.id}, role : ${group.role}` });  
+            res.status(201).json({ message: `Group created id : ${group.id}` });  
         } catch (error) {
             res.status(500).json({message: 'Network error'});
         }

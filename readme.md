@@ -25,6 +25,11 @@ Rename the *.env.sample* file into *.env* and insert your KEY into it
 JWT_KEY=
 JWT_KEY_INVITATION=
 ```
+Test are done with **Jest**
+```
+yarn add --dev Jest or npm install --dev Jest
+yarn test / npm test
+```
 
 ### To access the API documentation go on the navigator and go to : [localhost:3000/api-docs](http://localhost:3000/api-docs/)
 

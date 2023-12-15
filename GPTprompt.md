@@ -17,3 +17,15 @@ A partir de ce modèle génère moi les routes pour backend/routes/groupRoutes.j
 ## 5
 Je fournis le code de userRoutes.js
 Voici mon fichier userRoutes.js, aide moi à créer une doc API avec Swagger. Je n'ai jamais utilisé swagger explique moi donc de facon pédagogue comment procéder
+
+## 6 
+Comment implémenter des test unitaires dans mon projet ?
+
+## 7 
+Voici mon code (userController.js, invitationController.js, userController.js), crée moi des tests unitaires à partir de ces codes
+
+## 8
+Génère moi des tests pour groupController.js
+
+## 9 
+Génère moi des test pour invitationController.js

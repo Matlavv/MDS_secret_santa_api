@@ -26,6 +26,3 @@ Voici mon code (userController.js, invitationController.js, userController.js), 
 
 ## 8
 Génère moi des tests pour groupController.js
-
-## 9 
-Génère moi des test pour invitationController.js

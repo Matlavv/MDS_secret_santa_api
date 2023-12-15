@@ -35,7 +35,7 @@ exports.addInvitation = async (req, res) => {
 };
 
 // Accept an invitation method
-exports.acceptInvite = async (req, res) => {
+exports.acceptInvitation = async (req, res) => {
     try {
         const userId = req.params.user_id;
         const groupId = req.params.group_id;
@@ -64,7 +64,7 @@ exports.acceptInvite = async (req, res) => {
 };
 
 // Decline an invitation
-exports.declineInvite = async (req, res) => {
+exports.declineInvitation = async (req, res) => {
     try {
         const userId = req.params.user_id;
         const groupId = req.params.group_id;

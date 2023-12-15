@@ -10,4 +10,10 @@ A partir de ce modèle créer moi un CRUD pour backend/controllers/groupControll
 ## 3
 Créer moi un CRUD complet pour backend/controllers/invitationController.js en prenant en compte que l'user admin du groupe peut envoyer les invitations et qu'elles soient temporaires pendant 48heures
 
+## 4 
+Je fournis le code de userRoutes.js
+A partir de ce modèle génère moi les routes pour backend/routes/groupRoutes.js et backend/routes/invitationRoutes.js
 
+## 5
+Je fournis le code de userRoutes.js
+Voici mon fichier userRoutes.js, aide moi à créer une doc API avec Swagger. Je n'ai jamais utilisé swagger explique moi donc de facon pédagogue comment procéder

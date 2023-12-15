@@ -3,97 +3,86 @@ const Group = require('../models/groupModel');
 const User = require('../models/userModel');
 
 // Send an invitation
-exports.sendInvitation = async (req, res) => {
+exports.addInvitation = async (req, res) => {
     try {
-        const { groupId, recipientId } = req.body;
+        const userId = req.params.user_id;
+        const groupId = req.params.group_id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if user is admin
         const group = await Group.findById(groupId);
-        const recipient = await User.findById(recipientId);
 
-        // Check if the group and recipient exist
-        if (!group || !recipient) {
-            return res.status(404).json({ message: "Group or Recipient not found" });
+        if (!group) {
+            return res.status(404).json({ message: 'Groupe non trouvé.' });
         }
 
-        // Check if the sender is the admin of the group
-        if (group.admin.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Only group admin can send invitations" });
+        if (group.user_id !== userId || group.role !== 'admin') {
+            return res.status(403).json({ message: 'Accès refusé. Vous n\'avez pas les permissions nécessaires.' });
         }
 
-        // Create the invitation
-        const newInvitation = new Invitation({
-            group: groupId,
-            sender: req.user.id,
-            recipient: recipientId,
-            expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // Set expiration to 48 hours from now
-        });
+        // If user is admin he can send invite
+        const token = await jwt.sign({ groupId, userId }, process.env.JWT_KEY_INVIT, { expiresIn: '48h' });
 
-        const invitation = await newInvitation.save();
-        res.status(201).json(invitation);
+        res.status(200).json({ message: 'Invitation send', token });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error sending invitation" });
+        res.status(500).json({message: 'Network error'});
     }
 };
 
-// Get an invitation details
-exports.getInvitationDetails = async (req, res) => {
+// Accept an invitation method
+exports.acceptInvite = async (req, res) => {
     try {
-        const invitation = await Invitation.findById(req.params.invitationId);
-        if (!invitation) {
-            return res.status(404).json({ message: "Invitation not found" });
+        const userId = req.params.user_id;
+        const groupId = req.params.group_id;
+
+        const user = await User.findById(userId);
+        const group = await Group.findById(groupId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-        res.status(200).json(invitation);
+
+        if (group.user_id == userId || group.role == 'admin') {
+            return res.status(403).json({ message: 'Access denied, cannot join your own group' });
+        }
+
+        // Adding user into the group 
+        group.role = 'admin';
+
+        await group.save();
+
+        res.status(200).json({ message: 'Invitation accepted' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error retrieving invitation details" });
+        res.status(500).json({ message: 'Network error' });
     }
 };
 
-// Respond to an invitation (accept or reject)
-exports.respondToInvitation = async (req, res) => {
+// Decline an invitation
+exports.declineInvite = async (req, res) => {
     try {
-        const invitation = await Invitation.findById(req.params.invitationId);
-        if (!invitation) {
-            return res.status(404).json({ message: "Invitation not found" });
+        const userId = req.params.user_id;
+        const groupId = req.params.group_id;
+
+        const user = await User.findById(userId);
+        const group = await Group.findById(groupId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if the invitation is expired
-        if (new Date() > new Date(invitation.expiresAt)) {
-            return res.status(400).json({ message: "Invitation has expired" });
+        if (group.user_id == userId || group.role == 'admin') {
+            return res.status(403).json({ message: 'Access denied. Cannot decline an invitation from your own group' });
         }
 
-        // Update the invitation status (accepted or rejected)
-        invitation.status = req.body.status;
-        await invitation.save();
-
-        // Additional logic for accepting the invitation, such as adding the user to the group, can be added here
-
-        res.status(200).json({ message: `Invitation ${req.body.status}` });
+        res.status(200).json({ message: 'Invitation declined' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error responding to invitation" });
+        res.status(500).json({ message: 'Network error' });
     }
 };
-
-// Delete an invitation
-exports.deleteInvitation = async (req, res) => {
-    try {
-        const invitation = await Invitation.findById(req.params.invitationId);
-        if (!invitation) {
-            return res.status(404).json({ message: "Invitation not found" });
-        }
-
-        // Check if the sender or recipient is trying to delete the invitation
-        if (invitation.sender.toString() !== req.user.id && invitation.recipient.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Unauthorized to delete this invitation" });
-        }
-
-        await Invitation.findByIdAndDelete(req.params.invitationId);
-        res.status(200).json({ message: "Invitation deleted" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error deleting invitation" });
-    }
-};
-
-module.exports = exports;

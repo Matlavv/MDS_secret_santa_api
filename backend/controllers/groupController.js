@@ -1,101 +1,164 @@
-const Group = require('../models/groupModel');
 const User = require('../models/userModel');
+const Group = require('../models/groupModel');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-// Create a new group
-exports.createGroup = async (req, res) => {
+// Get the group
+exports.getInfoGroup = async (req, res) => {
     try {
-        const newGroup = new Group({
-            ...req.body,
-            admin: req.user.id  // Assuming the logged-in user is the admin
-        });
-        const group = await newGroup.save();
-        res.status(201).json(group);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error creating group" });
-    }
-};
+        const userId = req.params.user_id;
+        const groupId = req.params.group_id;
+        const user = await User.findById(userId);
 
-// Get details of a specific group
-exports.getGroupDetails = async (req, res) => {
-    try {
-        const group = await Group.findById(req.params.groupId).populate('members');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Is the user admin ?
+        const group = await Group.findById(groupId);
+
         if (!group) {
-            return res.status(404).json({ message: "Group not found" });
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        if (group.user_id !== userId || group.role !== 'admin') {
+            return res.status(403).json({ message: "Acces declined. You don\'t have the permission to access here" });
         }
         res.status(200).json(group);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error retrieving group details" });
+        res.status(500).json({ message: 'Network error' });
     }
 };
 
-// Update a group's information
-exports.updateGroup = async (req, res) => {
+// Create a group method
+exports.createGroup = async (req, res) => {
     try {
-        const updatedGroup = await Group.findByIdAndUpdate(
-            req.params.groupId, 
-            req.body, 
-            { new: true }
-        );
-        res.status(200).json(updatedGroup);
+        await User.findById(req.params.user_id);
+
+        // Check if the group already exist
+        const existingGroup = await Group.findOne({ name: req.body.name });
+        if (existingGroup) {
+            return res.status(400).json({ message: 'Group name must be unique' });
+        }
+
+        const newGroup = new Group({...req.body, user_id: req.params.user_id});
+        try {
+            const group = await newGroup.save();
+            group.role = 'admin';
+            await group.save();
+            res.status(201).json({ message: `Group created id : ${group.id}` });  
+        } catch (error) {
+            res.status(500).json({message: 'Network error'});
+        }
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error updating group" });
+        res.status(500).json({message: 'User not found'});
     }
 };
 
 // Delete a group
 exports.deleteGroup = async (req, res) => {
     try {
-        await Group.findByIdAndDelete(req.params.groupId);
-        res.status(200).json({ message: "Group deleted" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error deleting group" });
-    }
-};
+        const userId = req.params.user_id;
+        const groupId = req.params.group_id;
 
-// Add a member to a group
-exports.addMember = async (req, res) => {
-    try {
-        const group = await Group.findById(req.params.groupId);
-        const user = await User.findById(req.body.userId);
+        const user = await User.findById(userId);
 
-        if (!group || !user) {
-            return res.status(404).json({ message: "Group or User not found" });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        if (group.members.includes(req.body.userId)) {
-            return res.status(400).json({ message: "User already in group" });
-        }
-
-        group.members.push(req.body.userId);
-        await group.save();
-        res.status(200).json({ message: "User added to group" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error adding member to group" });
-    }
-};
-
-// Remove a member from a group
-exports.removeMember = async (req, res) => {
-    try {
-        const group = await Group.findById(req.params.groupId);
-        const userId = req.body.userId;
+        // Is the user admin ?
+        const group = await Group.findById(groupId);
 
         if (!group) {
-            return res.status(404).json({ message: "Group not found" });
+            return res.status(404).json({ message: 'Group not found' });
         }
 
-        group.members = group.members.filter(member => member.toString() !== userId);
-        await group.save();
-        res.status(200).json({ message: "User removed from group" });
+        if (group.user_id !== userId || group.role !== 'admin') {
+            return res.status(403).json({ message: "Access declined.  You don\'t have the permission to access here" });
+        }
+
+        // If user is admin delete the group
+        await Group.findByIdAndDelete(req.params.group_id);
+        res.status(200).json({ message: 'Group deleted' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error removing member from group" });
+        res.status(500).json({ message: 'Network error' });
     }
 };
 
-module.exports = exports;
+// Put method on a group
+exports.putGroup = async (req, res) => {
+    try {
+        // Check if the group already exist
+        const existingGroup = await Group.findOne({ name: req.body.name });
+        if (existingGroup) {
+            return res.status(400).json({ message: 'Group name must be unique' });
+        }
+        
+        const userId = req.params.user_id;
+        const groupId = req.params.group_id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // If user is admin 
+        const group = await Group.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        if (group.user_id !== userId || group.role !== 'admin') {
+            return res.status(403).json({ message: "Access declined.  You don\'t have the permission to access here" });
+        }
+
+        // If user is admin he has authorization
+
+        await Group.findByIdAndUpdate(req.params.group_id, req.body, {new: true});
+        res.status(200).json(group);
+    } catch (error) {
+        res.status(500).json({message: 'Network error'});
+    }
+};
+
+// Patch a group method
+exports.patchGroup = async (req, res) => {
+    try {
+        // Check if the group already exist
+        const existingGroup = await Group.findOne({ name: req.body.name });
+        if (existingGroup) {
+            return res.status(400).json({ message: 'Group name must be unique' });
+        }
+
+        const userId = req.params.user_id;
+        const groupId = req.params.group_id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Is user admin ?
+        const group = await Group.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        if (group.user_id !== userId || group.role !== 'admin') {
+            return res.status(403).json({ message:  "Access declined.  You don\'t have the permission to access here" });
+        }
+
+        // If user is admin he can make modifications
+        group = await Group.findByIdAndUpdate(req.params.group_id, req.body, {new: true});
+        res.status(200).json(group);
+    } catch (error) {
+        res.status(500).json({message: 'Erreur serveur'});
+    }
+};
+

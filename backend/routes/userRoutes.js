@@ -1,23 +1,52 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const jwtMiddleware = require('../middlewares/jwtMiddleware');
 
-// Route to register a new user
-router.post('/register', userController.userRegister);
-
-// Route to login a user
-router.post('/login', userController.userLogin);
-
-// Route to get a user's profile
-router.get('/:userId', userController.getUser);
-
-// Route to update a user's profile
 router
-    .route('/:userId')
+    .route('/register')
+    .post(userController.userRegister)
+
+router
+    .route('/login')
+    .post(userController.userLogin)
+
+router
+    .route('/:user_id')
     .all(jwtMiddleware.verifyToken)
-    .get(userController.getUser)
+    .delete(userController.deleteUser)
     .put(userController.putUser)
     .patch(userController.patchUser)
-    .delete(userController.deleteUser)
+    .get(userController.getUser)
+
+    router 
+    .route('/:user_id/groups/')
+    .all(jwtMiddleware.verifyToken)
+    .post(userController.createGroup)
+
+router 
+    .route('/:user_id/groups/:group_id')
+    .all(jwtMiddleware.verifyToken)
+    .get(userController.getInfoGroup)
+    .delete(userController.deleteGroup)
+    .patch(userController.patchGroup)
+    .put(userController.putGroup)
+
+router  
+    .all(jwtMiddleware.verifyToken)
+    .route('/:user_id/groups/:group_id/invitation')
+    .post(userController.addInvitation)
+
+router
+    .all(jwtMiddleware.verifyToken)
+    .all(jwtMiddleware.verifyToken)
+    .route('/:user_id/groups/:group_id/invitation/accept')
+    .post(userController.acceptInvit)
+
+router
+    .all(jwtMiddleware.verifyToken)
+    .all(jwtMiddleware.verifyToken)
+    .route('/:user_id/groups/:group_id/invitation/decline')
+    .post(userController.declineInvit)
 
 module.exports = router;

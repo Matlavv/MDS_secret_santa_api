@@ -13,3 +13,7 @@ Créer moi un CRUD complet pour backend/controllers/invitationController.js en p
 ## 4 
 Je fournis le code de userRoutes.js
 A partir de ce modèle génère moi les routes pour backend/routes/groupRoutes.js et backend/routes/invitationRoutes.js
+
+## 5
+Je fournis le code de userRoutes.js
+Voici mon fichier userRoutes.js, aide moi à créer une doc API avec Swagger. Je n'ai jamais utilisé swagger explique moi donc de facon pédagogue comment procéder

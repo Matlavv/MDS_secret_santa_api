@@ -1,6 +1,5 @@
 const User = require('../models/userModel');
 const Group = require('../models/groupModel');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 // Get the group
